@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Transición Energética Justa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f6f7;
+            color: var(--text-color);
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+        }
+
+        .card {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .chart-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-globe-americas me-2"></i>Transición Energética
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#calculadora">Calculadora</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#graficos">Gráficos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#fuentes">Fuentes</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Calculadora -->
+        <section id="calculadora" class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        Calculadora de Energía Renovable
+                    </div>
+                    <div class="card-body">
+                        <form id="energyCalculator">
+                            <div class="mb-3">
+                                <label for="consumption" class="form-label">Consumo Eléctrico (kWh)</label>
+                                <input type="number" class="form-control" id="consumption" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-calculator me-2"></i>Calcular Porcentaje
+                            </button>
+                        </form>
+                        <div id="calculationResult" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gráficos -->
+        <section id="graficos" class="row mt-4">
+            <div class="col-md-6">
+                <div class="card chart-container">
+                    <div class="card-header">Producción de Energía Renovable</div>
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card chart-container">
+                    <div class="card-header">Composición de Energías</div>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+          <!-- New section for Line Chart -->
+        <section id="tendencias" class="row mt-4">
+          <div class="col-12">
+              <div class="card chart-container">
+                  <div class="card-header">Tendencias de Energía Renovable</div>
+                  <canvas id="lineChart"></canvas>
+              </div>
+          </div>
+        </section>
+
+        <!-- Fuentes de Energía -->
+        <section id="fuentes" class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">Fuentes de Datos</div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <a href="https://www.kaggle.com/datasets/belayethossainds/renewable-energy-world-wide-19652022" target="_blank">
+                                    <i class="bi bi-database me-2"></i>Conjunto de Datos Kaggle
+                                </a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="https://github.com/TuUsuario/TransicionEnergetica" target="_blank">
+                                    <i class="bi bi-github me-2"></i>Repositorio GitHub
+                                </a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="https://www.w3schools.com/" target="_blank">
+                                    <i class="bi bi-book me-2"></i>Recursos W3Schools
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Datos de energía
+        const energyData = {
+            years: ['1965', '1985', '2005', '2022'],
+            wind: [10, 50, 200, 500],
+            solar: [5, 20, 100, 300],
+            hydro: [50, 75, 100, 150],
+            geothermal: [8, 15, 30, 50]
+        };
+
+        // Calculadora de energía renovable
+        document.getElementById('energyCalculator').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const consumption = document.getElementById('consumption').value;
+            const totalRenewableCapacity = energyData.wind[3] + 
+                                            energyData.solar[3] + 
+                                            energyData.hydro[3] + 
+                                            energyData.geothermal[3];
+            
+            const renewablePercentage = ((totalRenewableCapacity / consumption) * 100).toFixed(2);
+            
+            document.getElementById('calculationResult').innerHTML = 
+                `<div class="alert alert-success">
+                    Porcentaje de Energía Renovable: ${renewablePercentage}%
+                </div>`;
+        });
+
+        // Gráfico de Barras
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: energyData.years,
+                datasets: [
+                    { label: 'Eólica', data: energyData.wind, backgroundColor: 'rgba(54, 162, 235, 0.6)' },
+                    { label: 'Solar', data: energyData.solar, backgroundColor: 'rgba(255, 99, 132, 0.6)' },
+                    { label: 'Hidroeléctrica', data: energyData.hydro, backgroundColor: 'rgba(75, 192, 192, 0.6)' },
+                    { label: 'Geotérmica', data: energyData.geothermal, backgroundColor: 'rgba(255, 206, 86, 0.6)' }
+                ]
+            },
+            options: { responsive: true }
+        });
+
+        // Gráfico de Pastel
+        new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Eólica', 'Solar', 'Hidroeléctrica', 'Geotérmica'],
+                datasets: [{
+                    data: [500, 300, 150, 50],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(255, 206, 86, 0.6)'
+                    ]
+                }]
+            }
+        });
+
+         // Gráfico de Líneas
+         new Chart(document.getElementById('lineChart'), {
+          type: 'line',
+          data: {
+              labels: energyData.years,
+              datasets: [
+                  {
+                      label: 'Eólica',
+                      data: energyData.wind,
+                      borderColor: 'rgba(54, 162, 235, 1)',
+                      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                      fill: true
+                  },
+                  {
+                      label: 'Solar',
+                      data: energyData.solar,
+                      borderColor: 'rgba(255, 99, 132, 1)',
+                      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                      fill: true
+                  },
+                  {
+                      label: 'Hidroeléctrica',
+                      data: energyData.hydro,
+                      borderColor: 'rgba(75, 192, 192, 1)',
+                      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                      fill: true
+                  },
+                  {
+                      label: 'Geotérmica',
+                      data: energyData.geothermal,
+                      borderColor: 'rgba(255, 206, 86, 1)',
+                      backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                      fill: true
+                  }
+              ]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Evolución de Capacidad de Energía Renovable'
+                  }
+              }
+          }
+      });
+    </script>
+
+
+    <footer class="bg-light text-center py-3 mt-5">
+      <div class="container">
+        © 2024 Maniluisa. Todos los derechos reservados.
+      </div>
+  </footer>
+</body>
+</html>
